@@ -7,6 +7,7 @@ use Rvdlee\AsanaCLI\Commands\ProjectCommand;
 use Rvdlee\AsanaCLI\Commands\TaskCommand;
 use Rvdlee\AsanaCLI\Commands\VersionCommand;
 use Rvdlee\AsanaCLI\Interfaces\CommandInterface;
+use Rvdlee\AsanaCLI\Service\AsanaService;
 use splitbrain\phpcli\CLI;
 use splitbrain\phpcli\Options;
 
@@ -34,6 +35,18 @@ class AsanaCLI extends CLI
      */
     protected $commands = [];
 
+    /**
+     * @var AsanaService
+     */
+    protected AsanaService $asanaService;
+
+    public function __construct($autocatch = true)
+    {
+        $this->asanaService = new AsanaService();
+
+        parent::__construct($autocatch);
+    }
+
     protected function setup(Options $options)
     {
         $options->setHelp('A CLI interface for developers using Asana.');
@@ -41,7 +54,7 @@ class AsanaCLI extends CLI
         /** @var CommandInterface $fqcn */
         foreach (self::COMMANDS as $fqcn) {
             $options->registerCommand($fqcn::COMMAND, $fqcn::HELP);
-            $this->commands[$fqcn] = new $fqcn($this, $options);
+            $this->commands[$fqcn] = new $fqcn($this, $options, $this->asanaService);
         }
     }
 
